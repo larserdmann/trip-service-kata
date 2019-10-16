@@ -15,7 +15,7 @@ public class TripDAOTest {
         User user = new User();
 
         // Act / Assert
-        assertThrows(Exception.class, () -> dao.findTripsByUser2(user));
+        assertThrows(Exception.class, () -> dao.findTripsBy(user));
     }
 
 }

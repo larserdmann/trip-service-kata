@@ -10,7 +10,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.craftedsw.tripservicekata.exception.UserNotLoggedInException;
@@ -73,7 +72,8 @@ public class TripServiceTest {
 	void loggedInUserFriend() {
 
 		// given
-		tripService = spy(new TripService(new TripDAO()));
+		TripDAO dao = mock(TripDAO.class);
+		tripService = spy(new TripService(dao));
 
 		User loggedInUser = new User();
 		User user = new User();
@@ -81,7 +81,7 @@ public class TripServiceTest {
 
 		UserSession userSession = mock(UserSession.class);
 
-		doReturn(emptyList()).when(tripService).findTripsByUser(any());
+		when(dao.findTripsBy(user)).thenReturn(emptyList());
 		when(userSession.getLoggedUser()).thenReturn(loggedInUser);
 		tripService.setSession(userSession);
 
@@ -95,7 +95,8 @@ public class TripServiceTest {
 	@Test
 	public void loggedInUserWithFriendAndTrips() {
 		// given
-		tripService = spy(new TripService(new TripDAO()));
+		TripDAO dao = mock(TripDAO.class);
+		tripService = spy(new TripService(dao));
 
 		User loggedInUser = new User();
 		User user = new User();
@@ -106,7 +107,7 @@ public class TripServiceTest {
 
 		UserSession userSession = mock(UserSession.class);
 
-		doReturn(Arrays.asList(trip)).when(tripService).findTripsByUser(any());
+		when(dao.findTripsBy(user)).thenReturn(Arrays.asList(trip));
 		when(userSession.getLoggedUser()).thenReturn(loggedInUser);
 		tripService.setSession(userSession);
 
