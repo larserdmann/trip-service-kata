@@ -1,17 +1,5 @@
 package org.craftedsw.tripservicekata.trip;
 
-import static java.util.Collections.emptyList;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.List;
-
 import org.craftedsw.tripservicekata.exception.UserNotLoggedInException;
 import org.craftedsw.tripservicekata.user.User;
 import org.craftedsw.tripservicekata.user.UserSession;
@@ -19,34 +7,38 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static java.util.Collections.emptyList;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Trip Service")
 public class TripServiceTest {
 
+	@Mock
+	TripDAO dao;
 	@InjectMocks @Spy
 	TripService tripService;
+	@Mock
+	UserSession userSession;
 
 	@Test @DisplayName("User not logged in.")
 	void userNotLoggedIn() {
 
-		UserSession userSession = mock(UserSession.class);
-
 		// given
 		when(userSession.getLoggedUser()).thenReturn(null);
-		TripService tripService = new TripService(new TripDAO());
 		tripService.setSession(userSession);
 
 		// when
-		try {
-			List<Trip> tripsByUser = tripService.getTripsByUser(null);
-			fail();
-		} catch (UserNotLoggedInException e) {
-
-		}
-
+		assertThrows(UserNotLoggedInException.class, () -> tripService.getTripsByUser(null));
 	}
 
 	@Test @DisplayName("Logged in user not friend")
@@ -54,7 +46,6 @@ public class TripServiceTest {
 
 		User loggedInUser = new User();
 		User user = new User();
-		UserSession userSession = mock(UserSession.class);
 
 		// given
 		when(userSession.getLoggedUser()).thenReturn(loggedInUser);
@@ -72,14 +63,9 @@ public class TripServiceTest {
 	void loggedInUserFriend() {
 
 		// given
-		TripDAO dao = mock(TripDAO.class);
-		tripService = spy(new TripService(dao));
-
 		User loggedInUser = new User();
 		User user = new User();
 		user.addFriend(loggedInUser);
-
-		UserSession userSession = mock(UserSession.class);
 
 		when(dao.findTripsBy(user)).thenReturn(emptyList());
 		when(userSession.getLoggedUser()).thenReturn(loggedInUser);
@@ -95,17 +81,12 @@ public class TripServiceTest {
 	@Test
 	public void loggedInUserWithFriendAndTrips() {
 		// given
-		TripDAO dao = mock(TripDAO.class);
-		tripService = spy(new TripService(dao));
-
 		User loggedInUser = new User();
 		User user = new User();
 		user.addFriend(loggedInUser);
 
 		Trip trip = new Trip();
 		user.addTrip(trip);
-
-		UserSession userSession = mock(UserSession.class);
 
 		when(dao.findTripsBy(user)).thenReturn(Arrays.asList(trip));
 		when(userSession.getLoggedUser()).thenReturn(loggedInUser);
