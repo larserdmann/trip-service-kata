@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class TripServiceTest {
 
 		// given
 		when(userSession.getLoggedUser()).thenReturn(null);
-		TripService tripService = new TripService();
+		TripService tripService = new TripService(new TripDAO());
 		tripService.setSession(userSession);
 
 		// when
@@ -58,7 +59,7 @@ public class TripServiceTest {
 
 		// given
 		when(userSession.getLoggedUser()).thenReturn(loggedInUser);
-		TripService tripService = new TripService();
+		TripService tripService = new TripService(new TripDAO());
 		tripService.setSession(userSession);
 
 		// when
@@ -72,7 +73,7 @@ public class TripServiceTest {
 	void loggedInUserFriend() {
 
 		// given
-		tripService = spy(TripService.class);
+		tripService = spy(new TripService(new TripDAO()));
 
 		User loggedInUser = new User();
 		User user = new User();
@@ -89,5 +90,30 @@ public class TripServiceTest {
 
 		//then
 		assertTrue(tripsByUser.isEmpty());
+	}
+
+	@Test
+	public void loggedInUserWithFriendAndTrips() {
+		// given
+		tripService = spy(new TripService(new TripDAO()));
+
+		User loggedInUser = new User();
+		User user = new User();
+		user.addFriend(loggedInUser);
+
+		Trip trip = new Trip();
+		user.addTrip(trip);
+
+		UserSession userSession = mock(UserSession.class);
+
+		doReturn(Arrays.asList(trip)).when(tripService).findTripsByUser(any());
+		when(userSession.getLoggedUser()).thenReturn(loggedInUser);
+		tripService.setSession(userSession);
+
+		// when
+		List<Trip> tripsByUser = tripService.getTripsByUser(user);
+
+		//then
+		assertTrue(tripsByUser.contains(trip));
 	}
 }

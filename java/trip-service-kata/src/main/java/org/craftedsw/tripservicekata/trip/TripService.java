@@ -9,8 +9,12 @@ import org.craftedsw.tripservicekata.user.UserSession;
 
 public class TripService {
 
-
 	private UserSession session = UserSession.getInstance();
+	private TripDAO dao;
+
+	public TripService(TripDAO dao) {
+		this.dao = dao;
+	}
 
 	public void setSession(final UserSession session) {
 		this.session = session;
@@ -37,7 +41,7 @@ public class TripService {
 	}
 
 	List<Trip> findTripsByUser(final User user) {
-		return TripDAO.findTripsByUser(user);
+		return dao.findTripsByUser2(user);
 	}
 
 }
